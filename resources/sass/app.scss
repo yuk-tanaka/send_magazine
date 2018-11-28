@@ -1,0 +1,13 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+//wysiwyg
+@import "~vue-wysiwyg/dist/vueWysiwyg.css";
+
+//wrapper
+.content {
+  margin: 0 auto;
+  max-width: 1000px;
+  width: 100%;
+}
