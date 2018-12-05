@@ -45,6 +45,10 @@ class CSVParser
     public function parse(UploadedFile $file): Collection
     {
         foreach ($this->newSplFileObject($file->path()) as $i => $row) {
+            if (!$row) {
+                continue;
+            }
+
             if (!$this->isSend($row)) {
                 continue;
             }
@@ -74,7 +78,7 @@ class CSVParser
 
         //SplFileObject生成
         $splFileObject = new SplFileObject(stream_get_meta_data($temp)['uri']);
-        $splFileObject->setFlags(SplFileObject::READ_CSV | SplFileObject::DROP_NEW_LINE/** 最終行無視 */);
+        $splFileObject->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
 
         return $splFileObject;
     }
@@ -96,6 +100,7 @@ class CSVParser
     }
 
     /**
+     * 帰り値はトリムする
      * @param array $row
      * @param int $number
      * @param string $columnName
@@ -108,7 +113,7 @@ class CSVParser
             throw new ImportedCSVException($columnName . 'カラムが存在しない');
         }
 
-        return $row[$number];
+        return trim($row[$number]);
     }
 
     /**
