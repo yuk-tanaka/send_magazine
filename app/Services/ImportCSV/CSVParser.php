@@ -9,6 +9,8 @@ use SplFileObject;
 class CSVParser
 {
     /** @var bool */
+    private $isStrict = false;
+    /** @var bool */
     private $isValidate = false;
     /** @var null|int */
     private $validateColumnNumber;
@@ -25,6 +27,8 @@ class CSVParser
 
     public function __construct()
     {
+        $this->isStrict = config('send_magazine.is_strict');
+
         if (is_int(config('send_magazine.is_send_column_number'))) {
             $this->isValidate = true;
             $this->validateColumnNumber = config('send_magazine.is_send_column_number');
@@ -45,6 +49,7 @@ class CSVParser
     public function parse(UploadedFile $file): Collection
     {
         foreach ($this->newSplFileObject($file->path()) as $i => $row) {
+            //空行
             if (!$row) {
                 continue;
             }
@@ -53,10 +58,20 @@ class CSVParser
                 continue;
             }
 
-            $this->parsed->push([
-                'name' => $this->validateName($row, $i),
-                'email' => $this->validateEmail($row, $i),
-            ]);
+            try {
+                $this->parsed->push([
+                    'name' => $this->validateName($row, $i),
+                    'email' => $this->validateEmail($row, $i),
+                ]);
+            } catch (ImportedCSVException $e) {
+                //strictモードの場合例外、そうでない場合は当該行無視
+                if ($this->isStrict) {
+                    throw new ImportedCSVException($e->getMessage());
+                }
+
+                continue;
+            }
+
         }
 
         return $this->parsed;
@@ -100,7 +115,7 @@ class CSVParser
     }
 
     /**
-     * 帰り値はトリムする
+     * 返り値はトリムする
      * @param array $row
      * @param int $number
      * @param string $columnName
