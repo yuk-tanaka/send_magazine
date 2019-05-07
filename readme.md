@@ -17,3 +17,8 @@
 
 ## License
 MIT
+
+## Notice
+- Win7/8.1 IEはvue-wysiwygが動作しないため、使用不可
+  - https://github.com/chmln/vue-wysiwyg/issues/63
+  - https://support.microsoft.com/ja-jp/help/2922126
